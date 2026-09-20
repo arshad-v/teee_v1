@@ -286,7 +286,7 @@ h2 { font-size: clamp(45px, 4.8vw, 72px); line-height: 1.04; letter-spacing: -.5
 .footer-email-link svg { transition: transform 0.2s ease; flex-shrink: 0; color: var(--primary); }
 .footer-email-link:hover svg { transform: translate(2px, -2px); }
 .footer-address { font-size: 12.5px; line-height: 1.7; color: #c8baa9; margin: 0; }
-.footer-big { color: var(--primary); white-space: nowrap; width: 100vw; margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw); padding: 12px 1vw; font-size: clamp(38px, 9.85vw, 160px); line-height: 1.05; text-align: center; letter-spacing: clamp(-0.5px, 0.2vw, 3px); display: block; overflow: hidden; box-sizing: border-box; }
+.footer-big { color: var(--primary); opacity: 0.4; user-select: none; white-space: nowrap; width: 100vw; margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw); padding: 12px 1vw; font-size: clamp(38px, 9.85vw, 160px); line-height: 1.05; text-align: center; letter-spacing: clamp(-0.5px, 0.2vw, 3px); display: block; overflow: hidden; box-sizing: border-box; }
 .footer-bottom { border-top: 1px solid var(--border); display: flex; justify-content: space-between; gap: 20px; font-size: 8px; padding: 23px 0; margin-top: 20px; color: var(--muted-foreground); }
 .footer-bottom > span:nth-child(2) { font-size: 7px; letter-spacing: 1px; }
 @media (min-width: 1600px) { .site-header { max-width: 1440px; margin: auto; } .hero-visual { margin-right: -35px; } .hero { min-height: 780px; } .footer-big { font-size: 160px; } }
