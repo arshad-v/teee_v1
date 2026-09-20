@@ -1,0 +1,12 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="180" height="180" rx="40" fill="#3d271e" />
+  <!-- Saucer -->
+  <path d="M44 132C44 130 56 128 90 128C124 128 136 130 136 132C136 134 124 136 90 136C56 136 44 134 44 132Z" fill="#ffb703" />
+  <!-- Cup Body -->
+  <path d="M52 82H128V104C128 120 111 126 90 126C69 126 52 120 52 104V82Z" fill="#ffb703" />
+  <!-- Cup Handle -->
+  <path d="M125 88H133C139.6 88 145 93.4 145 100C145 106.6 139.6 112 133 112H125" stroke="#ffb703" stroke-width="7" stroke-linecap="round" />
+  <!-- Steam / Tea Leaf Accent -->
+  <path d="M74 68C74 58 84 54 84 44C80 48 78 54 80 62" stroke="#2d8653" stroke-width="6" stroke-linecap="round" />
+  <path d="M96 72C96 60 108 56 108 46C104 50 102 56 104 66" stroke="#2d8653" stroke-width="6" stroke-linecap="round" />
+</svg>

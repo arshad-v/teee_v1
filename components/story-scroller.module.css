@@ -1,0 +1,69 @@
+.story {
+  position: relative;
+  height: 340svh;
+  background: var(--secondary);
+  color: var(--foreground);
+  border-top: 1px solid var(--border);
+  scroll-margin-top: -28px;
+}
+.sticky { position: sticky; top: 0; height: 100svh; overflow: hidden; display: flex; flex-direction: column; }
+.header { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin: 0 5.6%; padding: 28px 0 20px; border-bottom: 1px solid #42792e30; flex-shrink: 0; }
+.eyebrow { display: flex; align-items: center; gap: 10px; font-family: var(--font-body), sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; line-height: 1.5; color: var(--leaf); }
+.scrollHint { display: flex; align-items: center; gap: 12px; font-size: 8px; letter-spacing: 1.4px; }
+.track { display: flex; flex: 1; min-height: 0; width: 100%; will-change: transform; }
+.chapter { --drift: 0; flex: 0 0 100%; min-width: 0; position: relative; display: flex; align-items: center; gap: 5%; padding: 32px 7% 44px 5.6%; isolation: isolate; }
+.year { position: absolute; top: 0; left: 3%; z-index: -1; font-family: var(--font-heading), Impact, sans-serif; font-size: clamp(180px, 30vw, 440px); line-height: 1; color: transparent; -webkit-text-stroke: 1px #42792e40; transform: translate3d(calc(var(--drift) * -100px), 0, 0); user-select: none; }
+.copy { flex: 1 1 52%; min-width: 0; transform: translate3d(calc(var(--drift) * -36px), calc(var(--drift) * -22px), 0); }
+.chapterLabel { display: flex; align-items: center; gap: 12px; margin: 0 0 22px; color: var(--leaf); font-size: 8px; font-weight: 700; letter-spacing: 1.4px; }
+.chapterLabel > span { display: grid; place-items: center; width: 28px; height: 28px; border: 1px solid #42792e60; border-radius: 50%; letter-spacing: 0; flex-shrink: 0; }
+.title { margin: 0; font-size: clamp(44px, 5.8vw, 92px); line-height: 1.04; letter-spacing: -1px; }
+.title > span { color: var(--leaf); }
+.description { max-width: 405px; margin: 23px 0; font-size: 12px; line-height: 1.9; color: var(--muted-foreground); }
+.place { display: flex; align-items: center; gap: 8px; font-size: 8px; font-weight: 700; letter-spacing: 1.3px; }
+.place > span { width: 5px; height: 5px; border-radius: 50%; background: var(--leaf); }
+.collage { flex: 1 1 43%; height: min(53svh, 490px); position: relative; min-width: 0; }
+.mainPhoto { position: absolute; inset: 0 8% 9% 0; margin: 0; padding: 9px 9px 0; background: var(--background); box-shadow: 0 15px 35px #3d271e16; transform: translate3d(calc(var(--drift) * 55px), calc(var(--drift) * -50px), 0) rotate(calc(-5deg + var(--drift) * 7deg)); }
+.photoFrame { height: calc(100% - 34px); position: relative; overflow: hidden; }
+.photoFrame img { object-fit: cover; transform: scale(1.12) translateY(calc(var(--drift) * 12px)); }
+.mainPhoto figcaption { display: flex; align-items: center; height: 34px; font-size: 8px; letter-spacing: .25px; }
+.detailPhoto { position: absolute; width: 47%; height: 57%; right: -5%; bottom: -3%; margin: 0; border: 7px solid var(--background); box-shadow: 0 10px 30px #3d271e25; transform: translate3d(calc(var(--drift) * -35px), calc(var(--drift) * 65px), 0) rotate(calc(9deg - var(--drift) * 12deg)); overflow: hidden; }
+.detailPhoto img { object-fit: cover; }
+.photoTag { position: absolute; top: 5%; right: -9%; max-width: 200px; display: flex; align-items: center; gap: 8px; padding: 13px 16px; background: var(--primary); font-size: 8px; font-weight: 700; letter-spacing: .7px; transform: translateY(calc(var(--drift) * -85px)) rotate(7deg); }
+.photoTag svg { flex-shrink: 0; }
+@media (min-width: 761px) and (max-height: 700px) {
+  .header { padding-top: 22px; padding-bottom: 16px; }
+  .title { font-size: clamp(44px, 5.5vw, 76px); }
+  .chapterLabel { margin-bottom: 16px; }
+  .description { margin: 18px 0; }
+}
+@media (max-width: 760px) {
+  .story { height: 340svh; }
+  .header { padding: 22px 0 16px; }
+  .eyebrow { font-size: 8px; letter-spacing: 1px; }
+  .scrollHint { font-size: 0; gap: 0; }
+  .chapter { flex-direction: column; justify-content: center; gap: 30px; padding: 22px 7% 28px; }
+  .copy { flex: 0 0 auto; width: 100%; }
+  .year { font-size: 52vw; top: 2%; }
+  .chapterLabel { font-size: 7px; letter-spacing: 1px; margin-bottom: 14px; }
+  .chapterLabel > span { width: 24px; height: 24px; }
+  .title { font-size: clamp(34px, 10.5vw, 65px); letter-spacing: -.5px; }
+  .description { margin: 15px 0; font-size: 11px; line-height: 1.8; max-width: 440px; }
+  .place { font-size: 7px; }
+  .collage { flex: 0 0 auto; width: 82%; max-width: 350px; height: clamp(170px, 28svh, 270px); }
+  .photoTag { font-size: 6px; padding: 10px; right: -13%; }
+  .mainPhoto { padding: 6px 6px 0; }
+  .mainPhoto figcaption { font-size: 6px; height: 26px; }
+  .photoFrame { height: calc(100% - 26px); }
+  .detailPhoto { border-width: 5px; }
+}
+@media (prefers-reduced-motion: reduce), (max-height: 580px) {
+  .story { height: auto; }
+  .sticky { position: relative; height: auto; overflow: hidden; }
+  .track { flex-direction: column; transform: none !important; will-change: auto; }
+  .chapter { flex: none; min-height: 540px; padding-top: 55px; padding-bottom: 65px; border-bottom: 1px solid #42792e25; }
+  .collage { height: 300px; }
+  .copy, .year, .mainPhoto, .detailPhoto, .photoTag, .photoFrame img { transform: none; }
+  .mainPhoto { rotate: -4deg; }
+  .detailPhoto { rotate: 7deg; }
+  .scrollHint { display: none; }
+}
