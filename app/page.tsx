@@ -62,6 +62,45 @@ export default function Page() {
       </section>
       <BranchFinder />
     </main>
-    <footer className="site-footer section-wrap"><div className="footer-top"><div><div className="footer-brand"><a className="footer-logo" href="#home" aria-label="Tea Time home"><Image src="/images/logo_2.PNG" alt="Tea Time logo" width={100} height={100} className="footer-logo-img" priority={false} /></a><p>Your everyday happy place.<br />From Kerala, with love.</p></div></div><div className="footer-links"><span>COME HANG OUT</span><a href="#menu">Our menu</a><a href="#story">Our story</a><a href="#leadership">Leadership</a><a href="#visit">Find a branch</a></div><div className="footer-contact"><span>SAY HELLO</span><a href="mailto:teatimegroupauh@gmail.com">teatimegroupauh@gmail.com <ArrowUpRight size={15} /></a><p>Head office · Al Falah Street<br />Abu Dhabi, United Arab Emirates</p></div></div><div className="footer-big" aria-hidden="true">IT&apos;S ALWAYS TEA TIME.</div><div className="footer-bottom"><span>© {new Date().getFullYear()} Tea Time. All rights reserved.</span><span>GOOD FOOD. GOOD PEOPLE. GOOD TIMES.</span><a href="#home">Back to top ↑</a></div></footer>
+    <footer className="site-footer section-wrap" id="site-footer">
+      <div className="footer-top" id="footer-top">
+        <div className="footer-brand-col" id="footer-brand-col">
+          <div className="footer-brand" id="footer-brand">
+            <a className="footer-logo" href="#home" aria-label="Tea Time home" id="footer-logo-link">
+              <Image src="/images/logo_2.PNG" alt="Tea Time logo" width={84} height={84} className="footer-logo-img" priority={false} id="footer-logo-img" />
+            </a>
+            <p className="footer-tagline" id="footer-tagline">
+              Your everyday happy place.<br />From Kerala, with love.
+            </p>
+          </div>
+        </div>
+        <div className="footer-links-col" id="footer-links-col">
+          <span className="footer-col-title" id="footer-links-title">COME HANG OUT</span>
+          <div className="footer-links" id="footer-links-group">
+            <a href="#menu" id="footer-link-menu">Our menu</a>
+            <a href="#story" id="footer-link-story">Our story</a>
+            <a href="#leadership" id="footer-link-leadership">Leadership</a>
+            <a href="#visit" id="footer-link-visit">Find a branch</a>
+          </div>
+        </div>
+        <div className="footer-contact-col" id="footer-contact-col">
+          <span className="footer-col-title" id="footer-contact-title">SAY HELLO</span>
+          <div className="footer-contact" id="footer-contact-group">
+            <a className="footer-email-link" href="mailto:teatimegroupauh@gmail.com" id="footer-email-link">
+              teatimegroupauh@gmail.com <ArrowUpRight size={15} />
+            </a>
+            <p className="footer-address" id="footer-address">
+              Head office · Al Falah Street<br />Abu Dhabi, United Arab Emirates.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div className="footer-big" aria-hidden="true" id="footer-tagline-banner">IT&apos;S ALWAYS TEA TIME.</div>
+      <div className="footer-bottom" id="footer-bottom">
+        <span>© {new Date().getFullYear()} Tea Time. All rights reserved.</span>
+        <span>GOOD FOOD. GOOD PEOPLE. GOOD TIMES.</span>
+        <a href="#home" id="footer-back-to-top">Back to top ↑</a>
+      </div>
+    </footer>
   </>
 }

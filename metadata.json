@@ -1,0 +1,6 @@
+{
+  "name": "Tea Time UAE",
+  "description": "Your everyday happy place. Discover burgers, fresh juices, signature tea and coffee at Tea Time UAE. Born in Kerala in 1988, loved in Abu Dhabi.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
