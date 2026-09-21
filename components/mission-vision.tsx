@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { Asterisk, HeartHandshake, Sprout } from 'lucide-react'
 import styles from './mission-vision.module.css'
 
@@ -7,7 +8,23 @@ export function MissionVision() {
       <header className={styles.header}>
         <div className={styles.intro}>
           <p className={styles.eyebrow}><Asterisk size={18} aria-hidden="true" /> THE HEART OF TEA TIME</p>
-          <h2 id="purpose-title">ROOTED IN CARE.<br /><span>DRIVEN BY PASSION.</span></h2>
+          <div className={styles.headingWithLogo}>
+            <h2 id="purpose-title">
+              <span className={styles.headingLine}>ROOTED IN CARE.</span>
+              <span className={styles.headingLineAccent}>DRIVEN BY PASSION.</span>
+            </h2>
+            <div className={styles.logoBadge} id="purpose-logo-badge">
+              <Image
+                src="/images/logo_2.PNG"
+                alt="Tea Time logo"
+                width={160}
+                height={160}
+                className={styles.purposeLogo}
+                priority={false}
+                id="purpose-logo-img"
+              />
+            </div>
+          </div>
         </div>
         <p className={styles.note}>From our first small outlet to every table we serve today, our purpose stays the same.</p>
       </header>

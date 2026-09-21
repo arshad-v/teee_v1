@@ -1,8 +1,13 @@
 .section { padding-block: clamp(64px, 8vw, 120px); background: var(--background); }
 .header { display: flex; flex-direction: column; gap: 24px; margin-bottom: 36px; }
 .eyebrow { display: flex; align-items: center; gap: 8px; margin: 0 0 20px; color: var(--leaf); font-size: 8px; font-weight: 700; letter-spacing: 1.4px; }
-.intro h2 { font-size: clamp(35px, 5vw, 72px); line-height: 1.08; }
-.intro h2 span { color: var(--leaf); }
+.intro { width: 100%; }
+.intro h2 { font-size: clamp(35px, 5vw, 72px); line-height: 1.08; margin: 0; }
+.headingLine { display: block; white-space: nowrap; }
+.headingLineAccent { display: block; white-space: nowrap; color: var(--leaf); }
+.headingWithLogo { display: flex; align-items: center; justify-content: space-between; width: 100%; gap: clamp(8px, 2vw, 16px); }
+.logoBadge { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; background: transparent; border: none; margin-left: auto; margin-right: calc(-1 * max(3.5vw, 14px)); }
+.purposeLogo { width: clamp(80px, 22vw, 112px); height: auto; object-fit: contain; display: block; background: transparent; border: none; }
 .note { max-width: 300px; margin: 0; color: var(--muted-foreground); font-size: 12px; line-height: 1.85; }
 .values { display: flex; flex-direction: column; gap: 20px; }
 .value { display: flex; flex: 1; flex-direction: column; min-width: 0; padding: 28px 22px; border: 1px solid var(--border); border-radius: 4px; }
@@ -16,6 +21,10 @@
 .signature { display: flex; align-items: center; gap: 8px; margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border); font-size: 7px; font-weight: 700; letter-spacing: .8px; line-height: 1.6; }
 .signature > span { flex-shrink: 0; width: 6px; height: 6px; background: var(--leaf); border-radius: 50%; }
 @media (min-width: 761px) {
+  .intro { width: auto; }
+  .headingWithLogo { justify-content: flex-start; width: auto; gap: clamp(20px, 2.8vw, 36px); }
+  .logoBadge { margin-left: 0; margin-right: 0; }
+  .purposeLogo { width: clamp(105px, 9.5vw, 160px); }
   .header { flex-direction: row; align-items: flex-end; justify-content: space-between; gap: 60px; margin-bottom: 48px; }
   .values { flex-direction: row; gap: 28px; }
   .value { padding: 40px; }

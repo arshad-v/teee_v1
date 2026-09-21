@@ -97,9 +97,9 @@ export default function Page() {
       </div>
       <div className="footer-big" aria-hidden="true" id="footer-tagline-banner">IT&apos;S ALWAYS TEA TIME.</div>
       <div className="footer-bottom" id="footer-bottom">
-        <span>© {new Date().getFullYear()} Tea Time. All rights reserved.</span>
-        <span>GOOD FOOD. GOOD PEOPLE. GOOD TIMES.</span>
         <a href="#home" id="footer-back-to-top">Back to top ↑</a>
+        <span id="footer-copyright">© {new Date().getFullYear()} Tea Time. All rights reserved.</span>
+        <span className="footer-motto" id="footer-motto">GOOD FOOD. GOOD PEOPLE. GOOD TIMES.</span>
       </div>
     </footer>
   </>
