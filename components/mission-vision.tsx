@@ -30,13 +30,39 @@ export function MissionVision() {
       </header>
       <div className={styles.values}>
         <article className={styles.value} aria-labelledby="mission-title">
-          <div className={styles.topline}><span>01 / OUR MISSION</span><HeartHandshake size={30} strokeWidth={1.3} aria-hidden="true" /></div>
+          <div className={styles.topline}>
+            <span>01 / OUR MISSION</span>
+            <div className={styles.toplineRight}>
+              <Image
+                src="/images/uae-flag.svg"
+                alt="UAE Flag"
+                width={26}
+                height={18}
+                className={styles.uaeFlag}
+                id="mission-uae-flag"
+              />
+              <HeartHandshake size={30} strokeWidth={1.3} aria-hidden="true" />
+            </div>
+          </div>
           <h3 id="mission-title">GOOD FOOD.<br />GENUINE <span>CARE.</span></h3>
           <p>We take great pride in preparing and serving the best-quality food at Tea Time Café &amp; Restaurant, with friendly service and affordable prices. We always maintain a spotlessly clean, healthy food environment.</p>
           <div className={styles.signature}><span /> QUALITY IN EVERY SERVING</div>
         </article>
         <article className={`${styles.value} ${styles.vision}`} aria-labelledby="vision-title">
-          <div className={styles.topline}><span>02 / OUR VISION</span><Sprout size={30} strokeWidth={1.3} aria-hidden="true" /></div>
+          <div className={styles.topline}>
+            <span>02 / OUR VISION</span>
+            <div className={styles.toplineRight}>
+              <Image
+                src="/images/uae-flag.svg"
+                alt="UAE Flag"
+                width={26}
+                height={18}
+                className={styles.uaeFlag}
+                id="vision-uae-flag"
+              />
+              <Sprout size={30} strokeWidth={1.3} aria-hidden="true" />
+            </div>
+          </div>
           <h3 id="vision-title">LED BY PASSION.<br />BUILT ON <span>RESPECT.</span></h3>
           <p>We run our restaurant with passion, respect and integrity, maintaining the highest possible standards of hygiene and cleanliness in everything we do.</p>
           <div className={styles.signature}><span /> INTEGRITY IN EVERYTHING WE DO</div>

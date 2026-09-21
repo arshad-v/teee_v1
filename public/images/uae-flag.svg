@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 32" width="48" height="32">
+  <defs>
+    <clipPath id="flag-radius">
+      <rect width="48" height="32" rx="3" ry="3"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#flag-radius)">
+    <!-- Top green stripe -->
+    <rect x="0" y="0" width="48" height="10.67" fill="#00732F"/>
+    <!-- Middle white stripe -->
+    <rect x="0" y="10.67" width="48" height="10.67" fill="#FFFFFF"/>
+    <!-- Bottom black stripe -->
+    <rect x="0" y="21.33" width="48" height="10.67" fill="#000000"/>
+    <!-- Hoist vertical red band (1/4 width) -->
+    <rect x="0" y="0" width="12" height="32" fill="#E00000"/>
+    <!-- Subtle outer border to delineate white stripe against light backgrounds -->
+    <rect x="0.5" y="0.5" width="47" height="31" rx="2.5" fill="none" stroke="rgba(0,0,0,0.15)" stroke-width="1"/>
+  </g>
+</svg>
