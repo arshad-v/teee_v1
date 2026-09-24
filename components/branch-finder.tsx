@@ -256,7 +256,7 @@ export function BranchFinder() {
         </h2>
         <p>
           A quick catch-up. A well-earned break. A craving that<br className="desktop-break" /> can&apos;t wait.
-          With 29 authentic cafeterias and eateries across Abu Dhabi, there&apos;s always a Tea Time near you.
+          There&apos;s a Tea Time for that.
         </p>
       </div>
 
