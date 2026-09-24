@@ -237,14 +237,6 @@ h2 { font-size: clamp(45px, 4.8vw, 72px); line-height: 1.04; letter-spacing: -.5
 .joy-secondary:hover { color: var(--leaf); text-decoration-color: currentColor; }
 .joy-signoff { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px; margin: 52px 0 0; font-size: 8px; font-weight: 600; letter-spacing: 1.5px; color: var(--muted-foreground); }
 .joy-signoff span { width: 3px; height: 3px; border-radius: 50%; background: var(--leaf); }
-.joy-socials { margin-top: 32px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-.joy-socials-eyebrow { font-size: 9.5px; font-weight: 750; letter-spacing: 2px; color: var(--leaf); text-transform: uppercase; }
-.joy-socials-list { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 14px; }
-.joy-social-item { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; text-decoration: none; color: inherit; background: transparent; border: none; transition: transform 0.22s ease; cursor: pointer; }
-.joy-social-item:hover { transform: translateY(-2px); }
-.joy-social-icon { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.22s ease, filter 0.22s ease; }
-.joy-social-item:hover .joy-social-icon { transform: scale(1.1); filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.2)); }
-.joy-social-svg { display: block; overflow: visible; }
 @media (max-width: 760px) {
   .joy-section.section-wrap { min-height: 590px; padding-block: 88px; }
   .joy-section .section-eyebrow { font-size: 8px; letter-spacing: 1.5px; }
@@ -253,10 +245,6 @@ h2 { font-size: clamp(45px, 4.8vw, 72px); line-height: 1.04; letter-spacing: -.5
   .joy-description br { display: none; }
   .joy-actions { flex-direction: column; gap: 8px; margin-top: 26px; }
   .joy-signoff { margin-top: 36px; font-size: 7px; letter-spacing: 1px; gap: 8px; }
-  .joy-socials { margin-top: 24px; gap: 8px; }
-  .joy-socials-eyebrow { font-size: 8.5px; letter-spacing: 1.5px; }
-  .joy-socials-list { gap: 12px; }
-  .joy-social-item { width: 26px; height: 26px; }
 }
 .cream-pill { background: var(--background); color: var(--foreground); }
 .cream-pill:hover { color: var(--background); }
