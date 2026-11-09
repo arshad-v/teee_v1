@@ -1,12 +1,41 @@
 import Image from 'next/image'
 import { ArrowUpRight } from 'lucide-react'
+import Shuffle from '@/components/Shuffle'
 
 export function CafeHero() {
   return (
     <section className="hero section-wrap" aria-labelledby="hero-title">
       <div className="hero-copy">
         <div className="section-eyebrow"><span className="status-dot" /> GOOD FOOD. YOUR KIND OF PLACE.</div>
-        <h1 id="hero-title">BIG BITES.<br /><span>FRESH SIPS.</span><br />GOOD TIMES.</h1>
+        <h1 id="hero-title">
+          BIG BITES.<br />
+          <Shuffle
+            text="FRESH SIPS."
+            tag="span"
+            effect="slide"
+            shuffleDirection="right"
+            duration={0.35}
+            animationMode="evenodd"
+            shuffleTimes={1}
+            ease="power3.out"
+            stagger={0.03}
+            threshold={0.1}
+            triggerOnce={true}
+            triggerOnHover={true}
+            hoverRadius={0}
+            motionBlur={false}
+            respectReducedMotion={true}
+            style={{
+              fontSize: 'inherit',
+              fontFamily: 'inherit',
+              lineHeight: 'inherit',
+              letterSpacing: 'inherit',
+              display: 'inline-block'
+            }}
+          />
+          <br />
+          GOOD TIMES.
+        </h1>
         <p>That first bite. That fresh sip. That happy feeling. <br />Juicy burgers, fresh juices, and the tea you love. <br />Go on. Give in to your cravings.</p>
         <div className="hero-actions">
           <a className="pill-link" href="#menu">Find your favourites <ArrowUpRight size={19} aria-hidden="true" /></a>
