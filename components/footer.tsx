@@ -135,7 +135,7 @@ export function SiteFooter() {
               teatimegroupauh@gmail.com <ArrowUpRight size={15} />
             </a>
             <p className="footer-address" id="footer-address">
-              Head office · Al Falah Tower<br />Abu Dhabi, United Arab Emirates.
+              Head office · Al Falah Street<br />Abu Dhabi, United Arab Emirates.
             </p>
           </div>
         </div>
