@@ -131,8 +131,8 @@ export function SiteFooter() {
         <div className="footer-contact-col" id="footer-contact-col">
           <span className="footer-col-title" id="footer-contact-title">SAY HELLO</span>
           <div className="footer-contact" id="footer-contact-group">
-            <a className="footer-email-link" href="mailto:teatimegroupauh@gmail.com" id="footer-email-link">
-              teatimegroupauh@gmail.com <ArrowUpRight size={15} />
+            <a className="footer-email-link" href="mailto:info@teatimeuae.ae" id="footer-email-link">
+              info@teatimeuae.ae <ArrowUpRight size={15} />
             </a>
             <p className="footer-address" id="footer-address">
               Head office · Al Falah Tower<br />Abu Dhabi, United Arab Emirates.
