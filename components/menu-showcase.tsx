@@ -80,77 +80,121 @@ export function MenuShowcase() {
   const startXRef = useRef<number>(0)
   const startYRef = useRef<number>(0)
   const currentDeltaXRef = useRef<number>(0)
-  const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null)
 
+  const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const transitionSafetyTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Robust step calculation that never returns 0
   const getStep = useCallback(() => {
-    if (!viewportRef.current) return 0
-    return viewportRef.current.offsetWidth + GAP_PX
+    if (viewportRef.current) {
+      const width = viewportRef.current.offsetWidth || viewportRef.current.getBoundingClientRect().width
+      if (width > 0) return width + GAP_PX
+    }
+    if (typeof window !== 'undefined') {
+      return Math.min(window.innerWidth - 32, 440) + GAP_PX
+    }
+    return 360 + GAP_PX
   }, [])
+
+  const clearAutoPlay = useCallback(() => {
+    if (autoPlayTimerRef.current) {
+      clearTimeout(autoPlayTimerRef.current)
+      autoPlayTimerRef.current = null
+    }
+  }, [])
+
+  // Finalize slide position after transition (or safety timeout)
+  const finalizeSlide = useCallback(
+    (targetIndex: number) => {
+      const track = trackRef.current
+      const step = getStep()
+      if (!track) return
+
+      if (transitionSafetyTimeoutRef.current) {
+        clearTimeout(transitionSafetyTimeoutRef.current)
+        transitionSafetyTimeoutRef.current = null
+      }
+
+      // Seamless clone wrap:
+      if (targetIndex >= LAST_REAL_INDEX + 1) {
+        indexRef.current = FIRST_REAL_INDEX
+        track.style.transition = 'none'
+        track.style.transform = `translate3d(-${FIRST_REAL_INDEX * step}px, 0, 0)`
+        void track.offsetHeight
+      } else if (targetIndex <= 0) {
+        indexRef.current = LAST_REAL_INDEX
+        track.style.transition = 'none'
+        track.style.transform = `translate3d(-${LAST_REAL_INDEX * step}px, 0, 0)`
+        void track.offsetHeight
+      } else {
+        indexRef.current = targetIndex
+      }
+
+      isAnimatingRef.current = false
+      currentDeltaXRef.current = 0
+
+      // Immediately schedule next auto scroll
+      clearAutoPlay()
+      autoPlayTimerRef.current = setTimeout(() => {
+        if (isInteractingRef.current) return
+        if (typeof window !== 'undefined' && window.innerWidth > 768) return
+        goToIndex(indexRef.current + 1, 450)
+      }, 3200)
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [getStep, clearAutoPlay]
+  )
 
   const goToIndex = useCallback(
     (targetIndex: number, duration = 320) => {
       const track = trackRef.current
       const step = getStep()
-      if (!track || step <= 0) return
+      if (!track) return
+
+      // If already at target index and no horizontal drag occurred, avoid starting empty transition
+      if (targetIndex === indexRef.current && currentDeltaXRef.current === 0) {
+        isAnimatingRef.current = false
+        finalizeSlide(targetIndex)
+        return
+      }
 
       isAnimatingRef.current = true
       indexRef.current = targetIndex
 
       track.style.transition = `transform ${duration}ms cubic-bezier(0.2, 0.8, 0.25, 1)`
       track.style.transform = `translate3d(-${targetIndex * step}px, 0, 0)`
-    },
-    [getStep]
-  )
 
-  const clearAutoPlay = useCallback(() => {
-    if (autoPlayTimerRef.current) {
-      clearInterval(autoPlayTimerRef.current)
-      autoPlayTimerRef.current = null
-    }
-  }, [])
+      // Safety timeout: guarantees state is never stuck if browser omits transitionend
+      if (transitionSafetyTimeoutRef.current) {
+        clearTimeout(transitionSafetyTimeoutRef.current)
+      }
+      transitionSafetyTimeoutRef.current = setTimeout(() => {
+        finalizeSlide(targetIndex)
+      }, duration + 50)
+    },
+    [getStep, finalizeSlide]
+  )
 
   const scheduleAutoPlay = useCallback(() => {
     clearAutoPlay()
-    autoPlayTimerRef.current = setInterval(() => {
+    autoPlayTimerRef.current = setTimeout(() => {
       if (isInteractingRef.current || isAnimatingRef.current) return
       if (typeof window !== 'undefined' && window.innerWidth > 768) return
       goToIndex(indexRef.current + 1, 450)
-    }, 3500)
+    }, 3200)
   }, [clearAutoPlay, goToIndex])
 
   // Native CSS transition completion listener
   const handleTransitionEnd = (e: React.TransitionEvent<HTMLDivElement>) => {
     if (e.target !== trackRef.current) return
-    const track = trackRef.current
-    const step = getStep()
-    if (!track || step <= 0) return
-
-    // Seamless loop wrap:
-    // If we just slid into clone-first (index 8), snap silently to real first (index 1)
-    if (indexRef.current >= LAST_REAL_INDEX + 1) {
-      indexRef.current = FIRST_REAL_INDEX
-      track.style.transition = 'none'
-      track.style.transform = `translate3d(-${FIRST_REAL_INDEX * step}px, 0, 0)`
-      void track.offsetHeight // force reflow
-    }
-    // If we just slid into clone-last (index 0), snap silently to real last (index 7)
-    else if (indexRef.current <= 0) {
-      indexRef.current = LAST_REAL_INDEX
-      track.style.transition = 'none'
-      track.style.transform = `translate3d(-${LAST_REAL_INDEX * step}px, 0, 0)`
-      void track.offsetHeight // force reflow
-    }
-
-    isAnimatingRef.current = false
-    currentDeltaXRef.current = 0
-    scheduleAutoPlay()
+    finalizeSlide(indexRef.current)
   }
 
-  // Position setup and resize listener
+  // Position setup, resize listener, focus listener, and intersection observer
   useEffect(() => {
     const updatePosition = () => {
       const step = getStep()
-      if (trackRef.current && step > 0 && !isAnimatingRef.current && !isInteractingRef.current) {
+      if (trackRef.current && !isAnimatingRef.current && !isInteractingRef.current) {
         trackRef.current.style.transition = 'none'
         trackRef.current.style.transform = `translate3d(-${indexRef.current * step}px, 0, 0)`
       }
@@ -159,21 +203,59 @@ export function MenuShowcase() {
     updatePosition()
     scheduleAutoPlay()
 
+    // Resume whenever page/tab becomes active or regains focus
+    const handleVisibility = () => {
+      if (!document.hidden) {
+        scheduleAutoPlay()
+      } else {
+        clearAutoPlay()
+      }
+    }
+
+    // Auto-resume whenever menu scrolls into view
+    let observer: IntersectionObserver | null = null
+    const viewportElem = viewportRef.current
+    if (typeof IntersectionObserver !== 'undefined' && viewportElem) {
+      observer = new IntersectionObserver(
+        (entries) => {
+          const entry = entries[0]
+          if (entry.isIntersecting) {
+            scheduleAutoPlay()
+          }
+        },
+        { threshold: 0.1 }
+      )
+      observer.observe(viewportElem)
+    }
+
     window.addEventListener('resize', updatePosition)
+    window.addEventListener('focus', scheduleAutoPlay)
+    document.addEventListener('visibilitychange', handleVisibility)
+
     return () => {
       clearAutoPlay()
+      if (transitionSafetyTimeoutRef.current) {
+        clearTimeout(transitionSafetyTimeoutRef.current)
+      }
+      if (observer && viewportElem) {
+        observer.unobserve(viewportElem)
+      }
       window.removeEventListener('resize', updatePosition)
+      window.removeEventListener('focus', scheduleAutoPlay)
+      document.removeEventListener('visibilitychange', handleVisibility)
     }
   }, [getStep, scheduleAutoPlay, clearAutoPlay])
 
   // Touch Gesture Handlers
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
     clearAutoPlay()
+    if (transitionSafetyTimeoutRef.current) {
+      clearTimeout(transitionSafetyTimeoutRef.current)
+    }
 
-    // If touching during a clone boundary, ensure index is wrapped first
     const step = getStep()
     const track = trackRef.current
-    if (track && step > 0) {
+    if (track) {
       if (indexRef.current >= LAST_REAL_INDEX + 1) {
         indexRef.current = FIRST_REAL_INDEX
         track.style.transition = 'none'
@@ -208,6 +290,7 @@ export function MenuShowcase() {
       }
     }
 
+    // If scrolling vertically down the website, leave track untouched
     if (!isSwipingHorizontalRef.current) return
 
     currentDeltaXRef.current = deltaX
@@ -223,11 +306,18 @@ export function MenuShowcase() {
     if (!isInteractingRef.current) return
     isInteractingRef.current = false
 
+    // If user was simply scrolling the website vertically, keep auto play alive without moving slides
+    if (isSwipingHorizontalRef.current === false) {
+      currentDeltaXRef.current = 0
+      scheduleAutoPlay()
+      return
+    }
+
     const deltaX = currentDeltaXRef.current
     const step = getStep()
     const track = trackRef.current
 
-    if (!track || step <= 0) {
+    if (!track) {
       scheduleAutoPlay()
       return
     }

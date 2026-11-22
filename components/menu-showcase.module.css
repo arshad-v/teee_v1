@@ -212,42 +212,44 @@
 .appButtonsRow {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  align-items: center;
+  gap: 24px;
 }
 
 .appPill {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  background: transparent;
   border: none;
-  border-radius: 8px;
-  padding: 10px 18px;
-  font-size: 13px;
-  font-weight: 700;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  color: #fffbed;
+  font-size: 14px;
+  font-weight: 600;
   text-decoration: none;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
+  transition: color 0.2s ease, transform 0.2s ease;
 }
 
 .appPill:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.08);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+  color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: none;
+  filter: none;
 }
 
-.talabatPill {
-  background: #ff5a00;
-  color: #ffffff;
-}
-
-.noonPill {
-  background: #fee600;
-  color: #111111;
-}
-
+.talabatPill,
+.noonPill,
 .keetaPill {
-  background: #00be64;
-  color: #ffffff;
+  background: transparent;
+  color: #fffbed;
+}
+
+.talabatPill:hover,
+.noonPill:hover,
+.keetaPill:hover {
+  color: var(--primary);
 }
 
 .deliveryPosterWrap {
