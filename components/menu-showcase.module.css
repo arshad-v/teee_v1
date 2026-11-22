@@ -159,11 +159,11 @@
   background: #3d271e;
   border: 1.5px solid rgba(255, 208, 0, 0.4);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
-  padding: 30px 36px;
+  padding: 36px 40px;
   display: grid;
-  grid-template-columns: 1.3fr 0.8fr;
+  grid-template-columns: 1.1fr 1fr;
   align-items: center;
-  gap: 30px;
+  gap: 36px;
   color: #fffbed;
   position: relative;
   overflow: hidden;
@@ -182,7 +182,7 @@
   color: var(--primary);
   border: 1px solid rgba(255, 208, 0, 0.3);
   padding: 5px 12px;
-  border-radius: 999px;
+  border-radius: 6px;
   font-size: 10px;
   font-weight: 750;
   letter-spacing: 1.5px;
@@ -202,74 +202,80 @@
 }
 
 .deliveryText {
-  font-size: 12.5px;
+  font-size: 13px;
   line-height: 1.7;
   color: #e5dacd;
-  margin: 0 0 20px;
-  max-width: 440px;
+  margin: 0 0 22px;
+  max-width: 460px;
 }
 
 .appButtonsRow {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
 }
 
 .appPill {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  color: #fffbed;
-  padding: 9px 16px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 650;
-  transition: all 0.25s ease;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
 }
 
-.talabatPill:hover {
+.appPill:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+}
+
+.talabatPill {
   background: #ff5a00;
-  border-color: #ff5a00;
-  color: #fff;
-  transform: translateY(-2px);
+  color: #ffffff;
 }
 
-.noonPill:hover {
+.noonPill {
   background: #fee600;
-  border-color: #fee600;
-  color: #000;
-  transform: translateY(-2px);
+  color: #111111;
 }
 
-.keetaPill:hover {
+.keetaPill {
   background: #00be64;
-  border-color: #00be64;
-  color: #fff;
-  transform: translateY(-2px);
+  color: #ffffff;
 }
 
 .deliveryPosterWrap {
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
 }
 
 .deliveryPosterImg {
   width: 100%;
-  max-width: 260px;
+  max-width: 400px;
   height: auto;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 208, 0, 0.35);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  border-radius: 16px;
+  border: 1.5px solid rgba(255, 208, 0, 0.35);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.38);
+  transition: transform 0.3s ease;
+}
+
+.deliveryPosterImg:hover {
+  transform: scale(1.02);
 }
 
 @media (max-width: 860px) {
   .deliveryBanner {
     grid-template-columns: 1fr;
-    padding: 24px 20px;
-    gap: 22px;
+    padding: 26px 20px;
+    gap: 24px;
     text-align: center;
   }
   .deliveryCopy {
@@ -282,5 +288,8 @@
   }
   .appButtonsRow {
     justify-content: center;
+  }
+  .deliveryPosterImg {
+    max-width: 360px;
   }
 }
