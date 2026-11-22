@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 import Image from 'next/image'
 import { Asterisk, ArrowUpRight, ShoppingBag } from 'lucide-react'
 import styles from './menu-showcase.module.css'
@@ -57,15 +57,23 @@ const SIGNATURE_POSTERS = [
   },
 ]
 
+// 9 slides: clone of last + 7 real + clone of first
+// Real posters are at indices 1 through 7
+const SLIDES = [
+  { ...SIGNATURE_POSTERS[SIGNATURE_POSTERS.length - 1], slideKey: 'clone-last' },
+  ...SIGNATURE_POSTERS.map((p) => ({ ...p, slideKey: p.id })),
+  { ...SIGNATURE_POSTERS[0], slideKey: 'clone-first' },
+]
+
 const GAP_PX = 16
-const TOTAL_POSTERS = SIGNATURE_POSTERS.length
+const FIRST_REAL_INDEX = 1
+const LAST_REAL_INDEX = SIGNATURE_POSTERS.length // index 7
 
 export function MenuShowcase() {
-  const [currentIndex, setCurrentIndex] = useState(0)
-
   const viewportRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
 
+  const indexRef = useRef<number>(FIRST_REAL_INDEX)
   const isInteractingRef = useRef<boolean>(false)
   const isAnimatingRef = useRef<boolean>(false)
   const isSwipingHorizontalRef = useRef<boolean | null>(null)
@@ -79,41 +87,21 @@ export function MenuShowcase() {
     return viewportRef.current.offsetWidth + GAP_PX
   }, [])
 
-  const animateToSlide = useCallback((target: 'next' | 'prev' | 'current') => {
-    const track = trackRef.current
-    const step = getStep()
-    if (!track || step <= 0) return
+  const goToIndex = useCallback(
+    (targetIndex: number, duration = 320) => {
+      const track = trackRef.current
+      const step = getStep()
+      if (!track || step <= 0) return
 
-    isAnimatingRef.current = true
-    track.style.transition = 'transform 300ms cubic-bezier(0.2, 0.8, 0.25, 1)'
+      isAnimatingRef.current = true
+      indexRef.current = targetIndex
 
-    let targetX = -step
-    if (target === 'next') targetX = -2 * step
-    if (target === 'prev') targetX = 0
+      track.style.transition = `transform ${duration}ms cubic-bezier(0.2, 0.8, 0.25, 1)`
+      track.style.transform = `translate3d(-${targetIndex * step}px, 0, 0)`
+    },
+    [getStep]
+  )
 
-    track.style.transform = `translate3d(${targetX}px, 0, 0)`
-
-    setTimeout(() => {
-      if (target === 'next') {
-        setCurrentIndex((i) => (i + 1) % TOTAL_POSTERS)
-      } else if (target === 'prev') {
-        setCurrentIndex((i) => (i - 1 + TOTAL_POSTERS) % TOTAL_POSTERS)
-      }
-
-      // Instant reset to center slide without transition
-      if (trackRef.current) {
-        trackRef.current.style.transition = 'none'
-        trackRef.current.style.transform = `translate3d(-${getStep()}px, 0, 0)`
-        // Force reflow
-        void trackRef.current.offsetHeight
-      }
-
-      isAnimatingRef.current = false
-      currentDeltaXRef.current = 0
-    }, 305)
-  }, [getStep])
-
-  // Clear auto play timer
   const clearAutoPlay = useCallback(() => {
     if (autoPlayTimerRef.current) {
       clearInterval(autoPlayTimerRef.current)
@@ -121,23 +109,50 @@ export function MenuShowcase() {
     }
   }, [])
 
-  // Start auto play timer
   const scheduleAutoPlay = useCallback(() => {
     clearAutoPlay()
     autoPlayTimerRef.current = setInterval(() => {
       if (isInteractingRef.current || isAnimatingRef.current) return
       if (typeof window !== 'undefined' && window.innerWidth > 768) return
-      animateToSlide('next')
-    }, 3400)
-  }, [animateToSlide, clearAutoPlay])
+      goToIndex(indexRef.current + 1, 450)
+    }, 3500)
+  }, [clearAutoPlay, goToIndex])
 
-  // Initialize track position on mount & resize
+  // Native CSS transition completion listener
+  const handleTransitionEnd = (e: React.TransitionEvent<HTMLDivElement>) => {
+    if (e.target !== trackRef.current) return
+    const track = trackRef.current
+    const step = getStep()
+    if (!track || step <= 0) return
+
+    // Seamless loop wrap:
+    // If we just slid into clone-first (index 8), snap silently to real first (index 1)
+    if (indexRef.current >= LAST_REAL_INDEX + 1) {
+      indexRef.current = FIRST_REAL_INDEX
+      track.style.transition = 'none'
+      track.style.transform = `translate3d(-${FIRST_REAL_INDEX * step}px, 0, 0)`
+      void track.offsetHeight // force reflow
+    }
+    // If we just slid into clone-last (index 0), snap silently to real last (index 7)
+    else if (indexRef.current <= 0) {
+      indexRef.current = LAST_REAL_INDEX
+      track.style.transition = 'none'
+      track.style.transform = `translate3d(-${LAST_REAL_INDEX * step}px, 0, 0)`
+      void track.offsetHeight // force reflow
+    }
+
+    isAnimatingRef.current = false
+    currentDeltaXRef.current = 0
+    scheduleAutoPlay()
+  }
+
+  // Position setup and resize listener
   useEffect(() => {
     const updatePosition = () => {
       const step = getStep()
       if (trackRef.current && step > 0 && !isAnimatingRef.current && !isInteractingRef.current) {
         trackRef.current.style.transition = 'none'
-        trackRef.current.style.transform = `translate3d(-${step}px, 0, 0)`
+        trackRef.current.style.transform = `translate3d(-${indexRef.current * step}px, 0, 0)`
       }
     }
 
@@ -153,24 +168,35 @@ export function MenuShowcase() {
 
   // Touch Gesture Handlers
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (isAnimatingRef.current) return
-    isInteractingRef.current = true
     clearAutoPlay()
 
+    // If touching during a clone boundary, ensure index is wrapped first
+    const step = getStep()
+    const track = trackRef.current
+    if (track && step > 0) {
+      if (indexRef.current >= LAST_REAL_INDEX + 1) {
+        indexRef.current = FIRST_REAL_INDEX
+        track.style.transition = 'none'
+        track.style.transform = `translate3d(-${FIRST_REAL_INDEX * step}px, 0, 0)`
+      } else if (indexRef.current <= 0) {
+        indexRef.current = LAST_REAL_INDEX
+        track.style.transition = 'none'
+        track.style.transform = `translate3d(-${LAST_REAL_INDEX * step}px, 0, 0)`
+      }
+      track.style.transition = 'none'
+    }
+
+    isInteractingRef.current = true
+    isAnimatingRef.current = false
     const touch = e.touches[0]
     startXRef.current = touch.clientX
     startYRef.current = touch.clientY
     currentDeltaXRef.current = 0
     isSwipingHorizontalRef.current = null
-
-    const track = trackRef.current
-    if (track) {
-      track.style.transition = 'none'
-    }
   }
 
   const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (!isInteractingRef.current || isAnimatingRef.current) return
+    if (!isInteractingRef.current) return
 
     const touch = e.touches[0]
     const deltaX = touch.clientX - startXRef.current
@@ -186,7 +212,7 @@ export function MenuShowcase() {
 
     currentDeltaXRef.current = deltaX
     const step = getStep()
-    const currentPos = -step + deltaX
+    const currentPos = -indexRef.current * step + deltaX
     const track = trackRef.current
     if (track) {
       track.style.transform = `translate3d(${currentPos}px, 0, 0)`
@@ -206,28 +232,17 @@ export function MenuShowcase() {
       return
     }
 
-    const threshold = Math.min(step * 0.16, 50)
+    const threshold = Math.min(step * 0.15, 50)
+    let targetIndex = indexRef.current
 
     if (deltaX < -threshold) {
-      animateToSlide('next')
+      targetIndex = indexRef.current + 1
     } else if (deltaX > threshold) {
-      animateToSlide('prev')
-    } else {
-      animateToSlide('current')
+      targetIndex = indexRef.current - 1
     }
 
-    // Schedule autoplay resume
-    setTimeout(() => {
-      scheduleAutoPlay()
-    }, 1500)
+    goToIndex(targetIndex, 300)
   }
-
-  const prevIndex = (currentIndex - 1 + TOTAL_POSTERS) % TOTAL_POSTERS
-  const nextIndex = (currentIndex + 1) % TOTAL_POSTERS
-
-  const prevPoster = SIGNATURE_POSTERS[prevIndex]
-  const currentPoster = SIGNATURE_POSTERS[currentIndex]
-  const nextPoster = SIGNATURE_POSTERS[nextIndex]
 
   return (
     <section id="menu" className={`${styles.menuSection} section-wrap`}>
@@ -265,7 +280,7 @@ export function MenuShowcase() {
         ))}
       </div>
 
-      {/* Mobile Viewport: 1 image in view, continuous 3-slide GPU infinite loop */}
+      {/* Mobile Viewport: 1 image in view, seamless zero-blink infinite loop */}
       <div className={styles.mobileSliderWrapper}>
         <div className={styles.mobileSliderViewport} ref={viewportRef}>
           <div
@@ -275,60 +290,22 @@ export function MenuShowcase() {
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
             onTouchCancel={handleTouchEnd}
+            onTransitionEnd={handleTransitionEnd}
           >
-            {/* Prev Slide */}
-            <div className={styles.mobileSlide}>
-              <Image
-                src={prevPoster.src}
-                alt={prevPoster.alt}
-                width={prevPoster.width}
-                height={prevPoster.height}
-                priority
-                className={styles.mobileSlideImg}
-                sizes="(max-width: 768px) 90vw, 440px"
-              />
-            </div>
-
-            {/* Current Slide */}
-            <div className={styles.mobileSlide}>
-              <Image
-                src={currentPoster.src}
-                alt={currentPoster.alt}
-                width={currentPoster.width}
-                height={currentPoster.height}
-                priority
-                className={styles.mobileSlideImg}
-                sizes="(max-width: 768px) 90vw, 440px"
-              />
-            </div>
-
-            {/* Next Slide */}
-            <div className={styles.mobileSlide}>
-              <Image
-                src={nextPoster.src}
-                alt={nextPoster.alt}
-                width={nextPoster.width}
-                height={nextPoster.height}
-                priority
-                className={styles.mobileSlideImg}
-                sizes="(max-width: 768px) 90vw, 440px"
-              />
-            </div>
+            {SLIDES.map((slide, idx) => (
+              <div className={styles.mobileSlide} key={`${slide.slideKey}-${idx}`}>
+                <Image
+                  src={slide.src}
+                  alt={slide.alt}
+                  width={slide.width}
+                  height={slide.height}
+                  priority
+                  className={styles.mobileSlideImg}
+                  sizes="(max-width: 768px) 90vw, 440px"
+                />
+              </div>
+            ))}
           </div>
-        </div>
-
-        {/* Silent Preloader for all 7 posters to eliminate image decode delay */}
-        <div style={{ display: 'none' }} aria-hidden="true">
-          {SIGNATURE_POSTERS.map((poster) => (
-            <Image
-              key={poster.id}
-              src={poster.src}
-              alt=""
-              width={poster.width}
-              height={poster.height}
-              priority
-            />
-          ))}
         </div>
       </div>
 
