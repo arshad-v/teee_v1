@@ -57,65 +57,97 @@ const SIGNATURE_POSTERS = [
   },
 ]
 
+// 3 consecutive sets for seamless infinite loop on mobile (left and right)
+const INFINITE_POSTERS = [
+  ...SIGNATURE_POSTERS.map((p, i) => ({ ...p, loopKey: `set1-${i}` })),
+  ...SIGNATURE_POSTERS.map((p, i) => ({ ...p, loopKey: `set2-${i}` })),
+  ...SIGNATURE_POSTERS.map((p, i) => ({ ...p, loopKey: `set3-${i}` })),
+]
+
 export function MenuShowcase() {
-  const containerRef = useRef<HTMLDivElement>(null)
+  const mobileContainerRef = useRef<HTMLDivElement>(null)
   const isInteractingRef = useRef<boolean>(false)
   const resumeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
-    const container = containerRef.current
+    const container = mobileContainerRef.current
     if (!container) return
 
-    // Auto-scroll loop for mobile view
-    let intervalId: NodeJS.Timeout | null = null
-
-    const startAutoScroll = () => {
-      if (intervalId) clearInterval(intervalId)
-      intervalId = setInterval(() => {
-        // Only auto-scroll on mobile/tablet view when container has horizontal overflow
-        if (!container) return
-        if (window.innerWidth > 768) return
-        if (isInteractingRef.current) return
-
-        const maxScrollLeft = container.scrollWidth - container.clientWidth
-        const cardWidth = container.firstElementChild
-          ? (container.firstElementChild as HTMLElement).offsetWidth + 16
-          : 300
-
-        if (container.scrollLeft >= maxScrollLeft - 10) {
-          // Smoothly wrap back to the first card
-          container.scrollTo({ left: 0, behavior: 'smooth' })
-        } else {
-          // Scroll forward by one card
-          container.scrollBy({ left: cardWidth, behavior: 'smooth' })
-        }
-      }, 3400)
+    const getMetrics = () => {
+      const firstCard = container.firstElementChild as HTMLElement | null
+      const cardWidth = firstCard ? firstCard.offsetWidth : 320
+      const gap = 16
+      const step = cardWidth + gap
+      const setWidth = SIGNATURE_POSTERS.length * step
+      return { step, setWidth }
     }
 
-    const pauseInteraction = () => {
+    // Initialize to the start of set 2
+    const { setWidth } = getMetrics()
+    if (setWidth > 0) {
+      container.scrollLeft = setWidth
+    }
+
+    let isResetting = false
+
+    const handleScroll = () => {
+      if (isResetting) return
+      const { setWidth } = getMetrics()
+      if (setWidth <= 0) return
+
+      const scroll = container.scrollLeft
+
+      // Seamlessly wrap forward into set 2
+      if (scroll >= setWidth * 2 - 10) {
+        isResetting = true
+        container.scrollLeft = scroll - setWidth
+        requestAnimationFrame(() => {
+          isResetting = false
+        })
+      }
+      // Seamlessly wrap backward into set 2
+      else if (scroll <= 10) {
+        isResetting = true
+        container.scrollLeft = scroll + setWidth
+        requestAnimationFrame(() => {
+          isResetting = false
+        })
+      }
+    }
+
+    // Auto-advance loop on mobile
+    const interval = setInterval(() => {
+      if (isInteractingRef.current) return
+      if (window.innerWidth > 768) return
+
+      const { step } = getMetrics()
+      container.scrollBy({ left: step, behavior: 'smooth' })
+    }, 3200)
+
+    const onTouchStart = () => {
       isInteractingRef.current = true
       if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current)
     }
 
-    const resumeInteraction = () => {
+    const onTouchEnd = () => {
       if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current)
       resumeTimeoutRef.current = setTimeout(() => {
         isInteractingRef.current = false
-      }, 3000)
+      }, 2500)
     }
 
-    startAutoScroll()
-
-    container.addEventListener('touchstart', pauseInteraction, { passive: true })
-    container.addEventListener('touchend', resumeInteraction, { passive: true })
-    container.addEventListener('touchcancel', resumeInteraction, { passive: true })
+    container.addEventListener('scroll', handleScroll, { passive: true })
+    container.addEventListener('touchstart', onTouchStart, { passive: true })
+    container.addEventListener('touchend', onTouchEnd, { passive: true })
+    container.addEventListener('touchcancel', onTouchEnd, { passive: true })
 
     return () => {
-      if (intervalId) clearInterval(intervalId)
+      clearInterval(interval)
       if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current)
-      container.removeEventListener('touchstart', pauseInteraction)
-      container.removeEventListener('touchend', resumeInteraction)
-      container.removeEventListener('touchcancel', resumeInteraction)
+      container.removeEventListener('scroll', handleScroll)
+      container.removeEventListener('touchstart', onTouchStart)
+      container.removeEventListener('touchend', onTouchEnd)
+      container.removeEventListener('touchcancel', onTouchEnd)
     }
   }, [])
 
@@ -138,8 +170,8 @@ export function MenuShowcase() {
         </div>
       </div>
 
-      {/* Posters: 3 in a row on PC, 1 in view auto-scrolling on mobile */}
-      <div className={styles.posterContainer} ref={containerRef}>
+      {/* Desktop Grid: exactly 3 items in a row */}
+      <div className={styles.desktopGrid}>
         {SIGNATURE_POSTERS.map((poster, index) => (
           <div className={styles.posterCard} key={poster.id}>
             <Image
@@ -148,8 +180,23 @@ export function MenuShowcase() {
               width={poster.width}
               height={poster.height}
               className={styles.posterImage}
-              sizes="(max-width: 768px) 90vw, 33vw"
+              sizes="(max-width: 1080px) 50vw, 33vw"
               priority={index < 3}
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Mobile Carousel: 1 in view, endless infinite continuous scroll */}
+      <div className={styles.mobileCarousel} ref={mobileContainerRef}>
+        {INFINITE_POSTERS.map((poster) => (
+          <div className={styles.posterCardMobile} key={poster.loopKey}>
+            <Image
+              src={poster.src}
+              alt={poster.alt}
+              width={poster.width}
+              height={poster.height}
+              sizes="90vw"
             />
           </div>
         ))}

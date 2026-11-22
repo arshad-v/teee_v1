@@ -46,11 +46,9 @@
 }
 
 /* =====================================================================
-   Poster Showcase Container: Desktop (3 columns) vs Mobile (Auto-scroll 1-per-view)
+   Desktop View: 3 items per row in a clean grid
    ===================================================================== */
-
-/* Desktop Grid: 3 images in a row */
-.posterContainer {
+.desktopGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
@@ -86,10 +84,12 @@
 }
 
 /* =====================================================================
-   Mobile View (<= 768px):
-   1 image per view, horizontal auto-scrolling side to side,
-   also smoothly swipeable by touch, NO buttons, NO dots/indicators.
+   Mobile View: 1 item in view, endless infinite continuous scroll
    ===================================================================== */
+.mobileCarousel {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .headingRow {
     flex-direction: column;
@@ -98,43 +98,51 @@
     margin-bottom: 24px;
   }
 
-  .posterContainer {
+  .desktopGrid {
+    display: none !important;
+  }
+
+  .mobileCarousel {
     display: flex;
-    grid-template-columns: none;
     overflow-x: auto;
     overflow-y: hidden;
     scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
     gap: 16px;
     padding-bottom: 12px;
     margin-inline: -5.6vw;
     padding-inline: 5.6vw;
-    scrollbar-width: none; /* Hide scrollbar Firefox */
-    -ms-overflow-style: none; /* Hide scrollbar IE/Edge */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
 
-  .posterContainer::-webkit-scrollbar {
-    display: none; /* Hide scrollbar Chrome/Safari */
+  .mobileCarousel::-webkit-scrollbar {
+    display: none;
   }
 
-  .posterCard {
-    flex: 0 0 calc(100vw - 11.2vw); /* Exactly 1 card visible */
+  .posterCardMobile {
+    flex: 0 0 calc(100vw - 11.2vw);
     width: calc(100vw - 11.2vw);
     max-width: 440px;
     scroll-snap-align: center;
     scroll-snap-stop: always;
     border-radius: 16px;
+    overflow: hidden;
+    background: #1c110b;
     box-shadow: 0 8px 24px rgba(61, 39, 30, 0.12);
+    border: 1.5px solid var(--border);
   }
 
-  .posterCard:hover {
-    transform: none;
+  .posterCardMobile img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
   }
 }
 
 /* =====================================================================
-   Delivery Partner Banner
+   Online Delivery Partner Banner
    ===================================================================== */
 .deliveryBanner {
   margin-top: 36px;
