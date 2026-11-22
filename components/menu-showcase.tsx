@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import Image from 'next/image'
 import { Asterisk, ArrowUpRight, ShoppingBag } from 'lucide-react'
 import styles from './menu-showcase.module.css'
@@ -57,99 +57,177 @@ const SIGNATURE_POSTERS = [
   },
 ]
 
-// 3 consecutive sets for seamless infinite loop on mobile (left and right)
-const INFINITE_POSTERS = [
-  ...SIGNATURE_POSTERS.map((p, i) => ({ ...p, loopKey: `set1-${i}` })),
-  ...SIGNATURE_POSTERS.map((p, i) => ({ ...p, loopKey: `set2-${i}` })),
-  ...SIGNATURE_POSTERS.map((p, i) => ({ ...p, loopKey: `set3-${i}` })),
-]
+const GAP_PX = 16
+const TOTAL_POSTERS = SIGNATURE_POSTERS.length
 
 export function MenuShowcase() {
-  const mobileContainerRef = useRef<HTMLDivElement>(null)
+  const [currentIndex, setCurrentIndex] = useState(0)
+
+  const viewportRef = useRef<HTMLDivElement>(null)
+  const trackRef = useRef<HTMLDivElement>(null)
+
   const isInteractingRef = useRef<boolean>(false)
-  const resumeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const isAnimatingRef = useRef<boolean>(false)
+  const isSwipingHorizontalRef = useRef<boolean | null>(null)
+  const startXRef = useRef<number>(0)
+  const startYRef = useRef<number>(0)
+  const currentDeltaXRef = useRef<number>(0)
+  const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null)
 
-  useEffect(() => {
-    const container = mobileContainerRef.current
-    if (!container) return
+  const getStep = useCallback(() => {
+    if (!viewportRef.current) return 0
+    return viewportRef.current.offsetWidth + GAP_PX
+  }, [])
 
-    const getMetrics = () => {
-      const firstCard = container.firstElementChild as HTMLElement | null
-      const cardWidth = firstCard ? firstCard.offsetWidth : 320
-      const gap = 16
-      const step = cardWidth + gap
-      const setWidth = SIGNATURE_POSTERS.length * step
-      return { step, setWidth }
-    }
+  const animateToSlide = useCallback((target: 'next' | 'prev' | 'current') => {
+    const track = trackRef.current
+    const step = getStep()
+    if (!track || step <= 0) return
 
-    // Initialize to the start of set 2
-    const { setWidth } = getMetrics()
-    if (setWidth > 0) {
-      container.scrollLeft = setWidth
-    }
+    isAnimatingRef.current = true
+    track.style.transition = 'transform 300ms cubic-bezier(0.2, 0.8, 0.25, 1)'
 
-    let isResetting = false
+    let targetX = -step
+    if (target === 'next') targetX = -2 * step
+    if (target === 'prev') targetX = 0
 
-    const handleScroll = () => {
-      if (isResetting) return
-      const { setWidth } = getMetrics()
-      if (setWidth <= 0) return
+    track.style.transform = `translate3d(${targetX}px, 0, 0)`
 
-      const scroll = container.scrollLeft
-
-      // Seamlessly wrap forward into set 2
-      if (scroll >= setWidth * 2 - 10) {
-        isResetting = true
-        container.scrollLeft = scroll - setWidth
-        requestAnimationFrame(() => {
-          isResetting = false
-        })
+    setTimeout(() => {
+      if (target === 'next') {
+        setCurrentIndex((i) => (i + 1) % TOTAL_POSTERS)
+      } else if (target === 'prev') {
+        setCurrentIndex((i) => (i - 1 + TOTAL_POSTERS) % TOTAL_POSTERS)
       }
-      // Seamlessly wrap backward into set 2
-      else if (scroll <= 10) {
-        isResetting = true
-        container.scrollLeft = scroll + setWidth
-        requestAnimationFrame(() => {
-          isResetting = false
-        })
+
+      // Instant reset to center slide without transition
+      if (trackRef.current) {
+        trackRef.current.style.transition = 'none'
+        trackRef.current.style.transform = `translate3d(-${getStep()}px, 0, 0)`
+        // Force reflow
+        void trackRef.current.offsetHeight
       }
-    }
 
-    // Auto-advance loop on mobile
-    const interval = setInterval(() => {
-      if (isInteractingRef.current) return
-      if (window.innerWidth > 768) return
+      isAnimatingRef.current = false
+      currentDeltaXRef.current = 0
+    }, 305)
+  }, [getStep])
 
-      const { step } = getMetrics()
-      container.scrollBy({ left: step, behavior: 'smooth' })
-    }, 3200)
-
-    const onTouchStart = () => {
-      isInteractingRef.current = true
-      if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current)
-    }
-
-    const onTouchEnd = () => {
-      if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current)
-      resumeTimeoutRef.current = setTimeout(() => {
-        isInteractingRef.current = false
-      }, 2500)
-    }
-
-    container.addEventListener('scroll', handleScroll, { passive: true })
-    container.addEventListener('touchstart', onTouchStart, { passive: true })
-    container.addEventListener('touchend', onTouchEnd, { passive: true })
-    container.addEventListener('touchcancel', onTouchEnd, { passive: true })
-
-    return () => {
-      clearInterval(interval)
-      if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current)
-      container.removeEventListener('scroll', handleScroll)
-      container.removeEventListener('touchstart', onTouchStart)
-      container.removeEventListener('touchend', onTouchEnd)
-      container.removeEventListener('touchcancel', onTouchEnd)
+  // Clear auto play timer
+  const clearAutoPlay = useCallback(() => {
+    if (autoPlayTimerRef.current) {
+      clearInterval(autoPlayTimerRef.current)
+      autoPlayTimerRef.current = null
     }
   }, [])
+
+  // Start auto play timer
+  const scheduleAutoPlay = useCallback(() => {
+    clearAutoPlay()
+    autoPlayTimerRef.current = setInterval(() => {
+      if (isInteractingRef.current || isAnimatingRef.current) return
+      if (typeof window !== 'undefined' && window.innerWidth > 768) return
+      animateToSlide('next')
+    }, 3400)
+  }, [animateToSlide, clearAutoPlay])
+
+  // Initialize track position on mount & resize
+  useEffect(() => {
+    const updatePosition = () => {
+      const step = getStep()
+      if (trackRef.current && step > 0 && !isAnimatingRef.current && !isInteractingRef.current) {
+        trackRef.current.style.transition = 'none'
+        trackRef.current.style.transform = `translate3d(-${step}px, 0, 0)`
+      }
+    }
+
+    updatePosition()
+    scheduleAutoPlay()
+
+    window.addEventListener('resize', updatePosition)
+    return () => {
+      clearAutoPlay()
+      window.removeEventListener('resize', updatePosition)
+    }
+  }, [getStep, scheduleAutoPlay, clearAutoPlay])
+
+  // Touch Gesture Handlers
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (isAnimatingRef.current) return
+    isInteractingRef.current = true
+    clearAutoPlay()
+
+    const touch = e.touches[0]
+    startXRef.current = touch.clientX
+    startYRef.current = touch.clientY
+    currentDeltaXRef.current = 0
+    isSwipingHorizontalRef.current = null
+
+    const track = trackRef.current
+    if (track) {
+      track.style.transition = 'none'
+    }
+  }
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!isInteractingRef.current || isAnimatingRef.current) return
+
+    const touch = e.touches[0]
+    const deltaX = touch.clientX - startXRef.current
+    const deltaY = touch.clientY - startYRef.current
+
+    if (isSwipingHorizontalRef.current === null) {
+      if (Math.abs(deltaX) > 6 || Math.abs(deltaY) > 6) {
+        isSwipingHorizontalRef.current = Math.abs(deltaX) > Math.abs(deltaY)
+      }
+    }
+
+    if (!isSwipingHorizontalRef.current) return
+
+    currentDeltaXRef.current = deltaX
+    const step = getStep()
+    const currentPos = -step + deltaX
+    const track = trackRef.current
+    if (track) {
+      track.style.transform = `translate3d(${currentPos}px, 0, 0)`
+    }
+  }
+
+  const handleTouchEnd = () => {
+    if (!isInteractingRef.current) return
+    isInteractingRef.current = false
+
+    const deltaX = currentDeltaXRef.current
+    const step = getStep()
+    const track = trackRef.current
+
+    if (!track || step <= 0) {
+      scheduleAutoPlay()
+      return
+    }
+
+    const threshold = Math.min(step * 0.16, 50)
+
+    if (deltaX < -threshold) {
+      animateToSlide('next')
+    } else if (deltaX > threshold) {
+      animateToSlide('prev')
+    } else {
+      animateToSlide('current')
+    }
+
+    // Schedule autoplay resume
+    setTimeout(() => {
+      scheduleAutoPlay()
+    }, 1500)
+  }
+
+  const prevIndex = (currentIndex - 1 + TOTAL_POSTERS) % TOTAL_POSTERS
+  const nextIndex = (currentIndex + 1) % TOTAL_POSTERS
+
+  const prevPoster = SIGNATURE_POSTERS[prevIndex]
+  const currentPoster = SIGNATURE_POSTERS[currentIndex]
+  const nextPoster = SIGNATURE_POSTERS[nextIndex]
 
   return (
     <section id="menu" className={`${styles.menuSection} section-wrap`}>
@@ -187,19 +265,71 @@ export function MenuShowcase() {
         ))}
       </div>
 
-      {/* Mobile Carousel: 1 in view, endless infinite continuous scroll */}
-      <div className={styles.mobileCarousel} ref={mobileContainerRef}>
-        {INFINITE_POSTERS.map((poster) => (
-          <div className={styles.posterCardMobile} key={poster.loopKey}>
+      {/* Mobile Viewport: 1 image in view, continuous 3-slide GPU infinite loop */}
+      <div className={styles.mobileSliderWrapper}>
+        <div className={styles.mobileSliderViewport} ref={viewportRef}>
+          <div
+            className={styles.mobileTrack}
+            ref={trackRef}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onTouchCancel={handleTouchEnd}
+          >
+            {/* Prev Slide */}
+            <div className={styles.mobileSlide}>
+              <Image
+                src={prevPoster.src}
+                alt={prevPoster.alt}
+                width={prevPoster.width}
+                height={prevPoster.height}
+                priority
+                className={styles.mobileSlideImg}
+                sizes="(max-width: 768px) 90vw, 440px"
+              />
+            </div>
+
+            {/* Current Slide */}
+            <div className={styles.mobileSlide}>
+              <Image
+                src={currentPoster.src}
+                alt={currentPoster.alt}
+                width={currentPoster.width}
+                height={currentPoster.height}
+                priority
+                className={styles.mobileSlideImg}
+                sizes="(max-width: 768px) 90vw, 440px"
+              />
+            </div>
+
+            {/* Next Slide */}
+            <div className={styles.mobileSlide}>
+              <Image
+                src={nextPoster.src}
+                alt={nextPoster.alt}
+                width={nextPoster.width}
+                height={nextPoster.height}
+                priority
+                className={styles.mobileSlideImg}
+                sizes="(max-width: 768px) 90vw, 440px"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Silent Preloader for all 7 posters to eliminate image decode delay */}
+        <div style={{ display: 'none' }} aria-hidden="true">
+          {SIGNATURE_POSTERS.map((poster) => (
             <Image
+              key={poster.id}
               src={poster.src}
-              alt={poster.alt}
+              alt=""
               width={poster.width}
               height={poster.height}
-              sizes="90vw"
+              priority
             />
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       {/* Online Delivery Partner Banner */}

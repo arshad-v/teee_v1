@@ -46,7 +46,7 @@
 }
 
 /* =====================================================================
-   Desktop View: 3 items per row in a clean grid
+   Desktop View: 3 posters per row in a clean responsive grid
    ===================================================================== */
 .desktopGrid {
   display: grid;
@@ -84,9 +84,9 @@
 }
 
 /* =====================================================================
-   Mobile View: 1 item in view, endless infinite continuous scroll
+   Mobile View Slider: 1 image in view, silky smooth GPU infinite loop
    ===================================================================== */
-.mobileCarousel {
+.mobileSliderWrapper {
   display: none;
 }
 
@@ -102,42 +102,51 @@
     display: none !important;
   }
 
-  .mobileCarousel {
-    display: flex;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    gap: 16px;
-    padding-bottom: 12px;
-    margin-inline: -5.6vw;
-    padding-inline: 5.6vw;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+  .mobileSliderWrapper {
+    display: block;
+    width: 100%;
+    position: relative;
+    padding-bottom: 8px;
+    margin-bottom: 32px;
+    touch-action: pan-y;
   }
 
-  .mobileCarousel::-webkit-scrollbar {
-    display: none;
-  }
-
-  .posterCardMobile {
-    flex: 0 0 calc(100vw - 11.2vw);
+  .mobileSliderViewport {
     width: calc(100vw - 11.2vw);
     max-width: 440px;
-    scroll-snap-align: center;
-    scroll-snap-stop: always;
-    border-radius: 16px;
+    margin: 0 auto;
+    overflow: hidden;
+    position: relative;
+    border-radius: 18px;
+  }
+
+  .mobileTrack {
+    display: flex;
+    width: 100%;
+    gap: 16px;
+    will-change: transform;
+    user-select: none;
+    -webkit-user-select: none;
+    transform: translate3d(calc(-100% - 16px), 0, 0);
+  }
+
+  .mobileSlide {
+    flex: 0 0 100%;
+    width: 100%;
+    border-radius: 18px;
     overflow: hidden;
     background: #1c110b;
     box-shadow: 0 8px 24px rgba(61, 39, 30, 0.12);
     border: 1.5px solid var(--border);
   }
 
-  .posterCardMobile img {
+  .mobileSlide img,
+  .mobileSlideImg {
     width: 100%;
     height: auto;
     display: block;
     object-fit: cover;
+    pointer-events: none;
   }
 }
 
