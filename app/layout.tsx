@@ -10,8 +10,8 @@ export const metadata: Metadata = {
   title: 'Tea Time UAE — Big Bites. Fresh Sips. Good Times.',
   description: 'Your everyday happy place. Discover burgers, fresh juices, signature tea and coffee at Tea Time UAE. Born in Kerala in 1988, loved in Abu Dhabi.',
   icons: {
-    icon: '/icon.svg',
-    apple: '/icon.svg',
+    icon: '/images/logo_2.PNG',
+    apple: '/images/logo_2.PNG',
   },
 }
 

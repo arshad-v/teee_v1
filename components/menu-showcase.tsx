@@ -1,99 +1,209 @@
-import Image from 'next/image'
-import { ArrowUpRight, Asterisk, Plus } from 'lucide-react'
+'use client'
 
-const categories = [
+import { useEffect, useRef } from 'react'
+import Image from 'next/image'
+import { Asterisk, ArrowUpRight, ShoppingBag } from 'lucide-react'
+import styles from './menu-showcase.module.css'
+
+const SIGNATURE_POSTERS = [
   {
-    number: '01',
-    title: 'BIG ON BITES.',
-    tag: 'BURGERS & MEALS',
-    image: '/images/burgers.png',
-    alt: 'A juicy gourmet burger with a sesame bun, fresh lettuce and melted cheese',
-    description: 'Big cravings, meet your match. Zinger Supreme, Khaleej Double, and Angus Beef grilled burgers cooked to perfection.',
-    selection: 'Explore our Zinger Supreme, Mathafi, Khaleej Double, and Angus Beef Burgers in-store.',
-    color: 'orange'
+    id: 'signature-wraps',
+    src: '/images/menu-ads/signature-wraps.jpg',
+    alt: 'Tea Time Signature Wraps & Rolls — Minhali Wrap, Metro Abu Dhabi, Avocado Wrap',
+    width: 1228,
+    height: 1600,
   },
   {
-    number: '02',
-    title: 'FLAKY & WRAPPED.',
-    tag: 'PORATTA SANDWICHES',
-    image: '/images/poratta.jpg',
-    alt: 'Golden flaky Kerala parotta roll filled with crispy chicken zinger, melted cheese and Oman chips',
-    description: 'The legendary UAE cafeteria signature. Golden flaky parottas rolled with crispy chicken, melted cheddar, and crunchy Oman chips.',
-    selection: 'Try our Mathafi Poratta, Francisco, Chilli Cheetos, and Egg Cheese Poratta rolls.',
-    color: 'yellow'
+    id: 'avocado-toasts',
+    src: '/images/menu-ads/avocado-toasts.jpg',
+    alt: 'Tea Time Avocado Sourdough Toasts — Shakshooka Avocado, Avocado Rumman, Half Fry Avocado',
+    width: 1228,
+    height: 1600,
   },
   {
-    number: '03',
-    title: 'ICONIC CLUBS.',
-    tag: 'CLUB SANDWICHES',
-    image: '/images/club-sandwich.jpg',
-    alt: 'Triple-decker toasted club sandwich with crispy golden fries and dipping sauce',
-    description: 'Layers of sheer comfort. Triple-decker toasted bread stacked with savory grilled chicken, egg, cheese, and seasoned fries.',
-    selection: 'Discover Majlis Club, Arabian Club, Zinger Club, and Emirates Club sandwiches.',
-    color: 'green'
+    id: 'artisan-toasts',
+    src: '/images/menu-ads/artisan-toasts.jpg',
+    alt: 'Tea Time Artisan Toasts & Sandwiches — Semi Boiled Egg Toast, Jiben Hallomi, Abu Yusuf',
+    width: 1228,
+    height: 1600,
   },
   {
-    number: '04',
-    title: 'CRISP & CRUNCH.',
-    tag: 'BROASTED & CRISPY',
-    image: '/images/broasted.jpg',
-    alt: 'Golden crispy broasted fried chicken pieces with french fries and garlic toum dip',
-    description: 'Golden, crackling crisp on the outside and tender inside. Served with seasoned french fries and creamy garlic toum sauce.',
-    selection: 'Enjoy our Family Buckets, Chicken Strips, Samosas, and Loaded Cheesy Fries.',
-    color: 'orange'
+    id: 'burgers-platters',
+    src: '/images/menu-ads/burgers-platters.jpg',
+    alt: 'Tea Time Burgers & Platters — Fazza Arabi, Smokie Chi / Beef Burger, Shofan Hut',
+    width: 1228,
+    height: 1600,
   },
   {
-    number: '05',
-    title: 'CREAMY & CHEESY.',
-    tag: 'PASTA CORNER',
-    image: '/images/pasta.jpg',
-    alt: 'Creamy pink sauce penne pasta with melted cheese, tender chicken, and crushed Cheetos',
-    description: 'Comfort in every forkful. Sizzling pink and Alfredo penne pasta with tender chicken, bubbling mozzarella, and crunchy Cheetos toppings.',
-    selection: 'Try Penne Cheetos Pasta, Oman Chips Pasta, Penne Hot Sauce, and Spaghetti Aglio Olio.',
-    color: 'orange'
+    id: 'breakfast-specials',
+    src: '/images/menu-ads/breakfast-specials.jpg',
+    alt: 'Tea Time Breakfast Specials — English Breakfast, Zakis Kuku, Bread Toast',
+    width: 1228,
+    height: 1600,
   },
   {
-    number: '06',
-    title: 'FRESH ON SIPS.',
-    tag: 'JUICES & SHAKES',
-    image: '/images/juices.png',
-    alt: 'Fresh mango and watermelon juices with ice, mint and fruit',
-    description: 'A little sunshine in every sip. Refreshing freshly blended avocado, mango, strawberry, and exotic specialty mocktails.',
-    selection: 'Taste our Avocado, Mango, Passionfruit Mojitos, and Lotus Milkshakes.',
-    color: 'yellow'
+    id: 'signature-shakes',
+    src: '/images/menu-ads/signature-shakes.jpg',
+    alt: 'Tea Time Signature Shakes & Frappes — Manchester, Pinky, Qubaisi, Mansoori',
+    width: 1228,
+    height: 1600,
   },
   {
-    number: '07',
-    title: 'ROYAL FALOODA.',
-    tag: 'DESSERT SPECIALS',
-    image: '/images/falooda.jpg',
-    alt: 'Layered royal falooda dessert with rose syrup, vermicelli, basil seeds, kulfi ice cream and pistachios',
-    description: 'The ultimate chilled indulgence. Layered rose syrup, sweet vermicelli, soaked sabja seeds, rich kulfi ice cream, and roasted nuts.',
-    selection: 'Taste our Tea Time Special Falooda, Kulfi Falooda, Mango Falooda, and Fruit Salad with Ice Cream.',
-    color: 'green'
-  },
-  {
-    number: '08',
-    title: 'ALWAYS TEA TIME.',
-    tag: 'THE ORIGINAL CHAI',
-    image: '/images/karak.png',
-    alt: 'A steaming glass of creamy karak tea with golden samosas',
-    description: 'The cup that started our journey in 1988. Authentic slow-brewed karak tea, fresh milk saffron, and warm cardamom chai.',
-    selection: 'Order our Signature Karak Tea, Fresh Milk Zaffran, Horlicks, or Flask Tea for sharing.',
-    color: 'orange'
+    id: 'passion-fruit-specials',
+    src: '/images/menu-ads/passion-fruit-specials.jpg',
+    alt: 'Tea Time Passion Fruit Specials — Strawberry Passion, F3, Orange Passion, Mango Passion',
+    width: 1228,
+    height: 1600,
   },
 ]
 
 export function MenuShowcase() {
-  return <section id="menu" className="menu-section section-wrap">
-    <div className="section-eyebrow"><Asterisk className="tiny-star" size={19} aria-hidden="true" /> SOMETHING FOR EVERY CRAVING</div>
-    <div className="section-heading-row"><h2>WHAT ARE YOU<br />IN THE <span className="outline-text">MOOD FOR?</span></h2><p>From the first sip to the last bite.<br />Your favourites, all in one happy place.</p></div>
-    <div className="menu-grid">{categories.map(category => <article className="food-card" key={category.number}>
-      <div className={`food-image ${category.color}`}><Image src={category.image} alt={category.alt} width={640} height={640} sizes="(max-width: 580px) 100vw, (max-width: 1120px) 50vw, 25vw" /><span className="food-tag">{category.tag}</span><span className="food-number">{category.number}</span></div>
-      <div className="food-title-row"><h3>{category.title}</h3><ArrowUpRight aria-hidden="true" size={22} /></div>
-      <p>{category.description}</p>
-      <details className="food-details"><summary>Explore the selection <Plus size={17} aria-hidden="true" /></summary><p>{category.selection} <a href="#visit">Find a branch <ArrowUpRight size={14} aria-hidden="true" /></a></p></details>
-    </article>)}</div>
-    <p className="menu-note">A taste of what we do. Selection may vary by branch. Food photography is illustrative.</p>
-  </section>
+  const containerRef = useRef<HTMLDivElement>(null)
+  const isInteractingRef = useRef<boolean>(false)
+  const resumeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+
+    // Auto-scroll loop for mobile view
+    let intervalId: NodeJS.Timeout | null = null
+
+    const startAutoScroll = () => {
+      if (intervalId) clearInterval(intervalId)
+      intervalId = setInterval(() => {
+        // Only auto-scroll on mobile/tablet view when container has horizontal overflow
+        if (!container) return
+        if (window.innerWidth > 768) return
+        if (isInteractingRef.current) return
+
+        const maxScrollLeft = container.scrollWidth - container.clientWidth
+        const cardWidth = container.firstElementChild
+          ? (container.firstElementChild as HTMLElement).offsetWidth + 16
+          : 300
+
+        if (container.scrollLeft >= maxScrollLeft - 10) {
+          // Smoothly wrap back to the first card
+          container.scrollTo({ left: 0, behavior: 'smooth' })
+        } else {
+          // Scroll forward by one card
+          container.scrollBy({ left: cardWidth, behavior: 'smooth' })
+        }
+      }, 3400)
+    }
+
+    const pauseInteraction = () => {
+      isInteractingRef.current = true
+      if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current)
+    }
+
+    const resumeInteraction = () => {
+      if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current)
+      resumeTimeoutRef.current = setTimeout(() => {
+        isInteractingRef.current = false
+      }, 3000)
+    }
+
+    startAutoScroll()
+
+    container.addEventListener('touchstart', pauseInteraction, { passive: true })
+    container.addEventListener('touchend', resumeInteraction, { passive: true })
+    container.addEventListener('touchcancel', resumeInteraction, { passive: true })
+
+    return () => {
+      if (intervalId) clearInterval(intervalId)
+      if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current)
+      container.removeEventListener('touchstart', pauseInteraction)
+      container.removeEventListener('touchend', resumeInteraction)
+      container.removeEventListener('touchcancel', resumeInteraction)
+    }
+  }, [])
+
+  return (
+    <section id="menu" className={`${styles.menuSection} section-wrap`}>
+      {/* Header */}
+      <div className={styles.eyebrowRow}>
+        <Asterisk className="tiny-star" size={18} aria-hidden="true" />
+        <span>AUTHENTIC SIGNATURE SELECTION</span>
+      </div>
+
+      <div className={styles.headingRow}>
+        <div>
+          <h2 className={styles.headingTitle}>
+            OUR SIGNATURE <span className={styles.outlineText}>MENU.</span>
+          </h2>
+          <p className={styles.headingSubtitle}>
+            Freshly prepared every day across the UAE.
+          </p>
+        </div>
+      </div>
+
+      {/* Posters: 3 in a row on PC, 1 in view auto-scrolling on mobile */}
+      <div className={styles.posterContainer} ref={containerRef}>
+        {SIGNATURE_POSTERS.map((poster, index) => (
+          <div className={styles.posterCard} key={poster.id}>
+            <Image
+              src={poster.src}
+              alt={poster.alt}
+              width={poster.width}
+              height={poster.height}
+              className={styles.posterImage}
+              sizes="(max-width: 768px) 90vw, 33vw"
+              priority={index < 3}
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Online Delivery Partner Banner */}
+      <div className={styles.deliveryBanner}>
+        <div className={styles.deliveryCopy}>
+          <span className={styles.deliveryBadge}>
+            <ShoppingBag size={14} /> ORDER DIRECT TO YOUR DOORSTEP
+          </span>
+          <h3 className={styles.deliveryTitle}>
+            CRAVING TEA TIME? <br />
+            <span>WE DELIVER ON YOUR FAVOURITE APPS.</span>
+          </h3>
+          <p className={styles.deliveryText}>
+            Enjoy our piping hot wraps, juicy burgers, loaded toasts, and signature karak delivered straight to your home or office anywhere in the UAE.
+          </p>
+          <div className={styles.appButtonsRow}>
+            <a
+              href="https://www.talabat.com/uae"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${styles.appPill} ${styles.talabatPill}`}
+            >
+              Order on Talabat <ArrowUpRight size={14} />
+            </a>
+            <a
+              href="https://www.noon.com/uae-en/food/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${styles.appPill} ${styles.noonPill}`}
+            >
+              Order on Noon Food <ArrowUpRight size={14} />
+            </a>
+            <a
+              href="#visit"
+              className={`${styles.appPill} ${styles.keetaPill}`}
+            >
+              Order on Keeta <ArrowUpRight size={14} />
+            </a>
+          </div>
+        </div>
+
+        <div className={styles.deliveryPosterWrap}>
+          <Image
+            src="/images/menu-ads/delivery-partners.jpg"
+            alt="Tea Time Official Delivery Partners - Talabat, Noon, Keeta with QR code"
+            width={600}
+            height={600}
+            className={styles.deliveryPosterImg}
+          />
+        </div>
+      </div>
+    </section>
+  )
 }
